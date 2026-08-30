@@ -1,21 +1,25 @@
-import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 function NavBar() {
-  const [activeLink, setActiveLink] = useState('Home');
-  const navItems = ['Home', 'About', 'Skills', 'Contact'];
+  const location = useLocation();
+
+  const navItems = [
+    { name: 'Home', path: '/' },
+    { name: 'Projects', path: '/projects' },
+    { name: 'Contact', path: '/contact' },
+  ];
 
   return (
     <nav className="navbar">
       <ul className="nav-list">
         {navItems.map((item) => (
-          <li key={item} className="nav-item">
-            <a
-              href={`#${item.toLowerCase()}`}
-              className={`nav-link ${activeLink === item ? 'active' : ''}`}
-              onClick={() => setActiveLink(item)}
+          <li key={item.name} className="nav-item">
+            <Link
+              to={item.path}
+              className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
             >
-              {item}
-            </a>
+              {item.name}
+            </Link>
           </li>
         ))}
       </ul>
