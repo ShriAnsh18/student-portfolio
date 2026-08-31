@@ -5,23 +5,30 @@ function NavBar() {
 
   const navItems = [
     { name: 'Home', path: '/' },
-    { name: 'Projects', path: '/projects' },
+    { name: 'Tasks', path: '/projects' },
     { name: 'Contact', path: '/contact' },
   ];
 
   return (
     <nav className="navbar">
       <ul className="nav-list">
-        {navItems.map((item) => (
-          <li key={item.name} className="nav-item">
-            <Link
-              to={item.path}
-              className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
-            >
-              {item.name}
-            </Link>
-          </li>
-        ))}
+        {navItems.map((item) => {
+          const isActive =
+            item.path === '/'
+              ? location.pathname === '/'
+              : location.pathname.startsWith(item.path) ||
+                (item.path === '/projects' && location.pathname.startsWith('/tasks'));
+          return (
+            <li key={item.name} className="nav-item">
+              <Link
+                to={item.path}
+                className={`nav-link ${isActive ? 'active' : ''}`}
+              >
+                {item.name}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );

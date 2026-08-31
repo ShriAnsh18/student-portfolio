@@ -1,8 +1,8 @@
-function Spinner() {
+function Spinner({ message = 'Loading...' }) {
   return (
     <div className="spinner-container">
       <div className="spinner"></div>
-      <p className="spinner-text">Loading repositories...</p>
+      <p className="spinner-text">{message}</p>
     </div>
   );
 }
