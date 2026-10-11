@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
-import { getTasks, createTask, updateTask, deleteTask } from '../api';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getTasks, createTask, updateTask, deleteTask, getToken } from '../api';
 import Spinner from '../components/Spinner';
 import ErrorMessage from '../components/ErrorMessage';
 
 function Projects() {
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
@@ -18,23 +20,35 @@ function Projects() {
   const [actionLoadingId, setActionLoadingId] = useState(null);
   const [actionError, setActionError] = useState(null);
 
-  // 1. Fetch tasks on mount using api.js
-  useEffect(() => {
-    fetchTasksList();
-  }, []);
-
-  const fetchTasksList = async () => {
+  const fetchTasksList = useCallback(async () => {
+    if (!getToken()) {
+      navigate('/login');
+      return;
+    }
     setLoading(true);
     setFetchError(null);
     try {
       const data = await getTasks();
       setTasks(Array.isArray(data) ? data : []);
     } catch (err) {
+      if (err.status === 401) {
+        navigate('/login', { state: { message: 'Session expired. Please log in again.' } });
+        return;
+      }
       setFetchError(err.message || 'Failed to connect to backend API.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
+
+  // 1. Fetch tasks on mount using api.js (redirect if not logged in)
+  useEffect(() => {
+    if (!getToken()) {
+      navigate('/login');
+      return;
+    }
+    fetchTasksList();
+  }, [fetchTasksList, navigate]);
 
   // 2. Handle form input changes
   const handleInputChange = (e) => {
@@ -71,6 +85,10 @@ function Projects() {
       setFormSuccess('Task created successfully!');
       setTimeout(() => setFormSuccess(null), 3000);
     } catch (err) {
+      if (err.status === 401) {
+        navigate('/login', { state: { message: 'Session expired. Please log in again.' } });
+        return;
+      }
       setFormError(err.message || 'Failed to create task. Please try again.');
     } finally {
       setCreating(false);
@@ -93,6 +111,10 @@ function Projects() {
         prevTasks.map((t) => ((t._id || t.id) === taskId ? updated : t))
       );
     } catch (err) {
+      if (err.status === 401) {
+        navigate('/login', { state: { message: 'Session expired. Please log in again.' } });
+        return;
+      }
       setActionError(`Failed to update task "${task.title}": ${err.message}`);
       setTimeout(() => setActionError(null), 4000);
     } finally {
@@ -112,12 +134,20 @@ function Projects() {
       // Remove task from local state immediately
       setTasks((prevTasks) => prevTasks.filter((t) => (t._id || t.id) !== taskId));
     } catch (err) {
+      if (err.status === 401) {
+        navigate('/login', { state: { message: 'Session expired. Please log in again.' } });
+        return;
+      }
       setActionError(`Failed to delete task "${task.title}": ${err.message}`);
       setTimeout(() => setActionError(null), 4000);
     } finally {
       setActionLoadingId(null);
     }
   };
+
+  if (!getToken()) {
+    return null;
+  }
 
   if (loading) {
     return <Spinner message="Connecting to backend & loading tasks..." />;

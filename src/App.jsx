@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
+import Login from './pages/Login';
 import Spinner from './components/Spinner';
 import './App.css';
 
@@ -20,6 +21,7 @@ function App() {
           <Route path="/projects" element={<Projects />} />
           <Route path="/tasks" element={<Projects />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </Suspense>
       <Footer />
@@ -28,4 +30,3 @@ function App() {
 }
 
 export default App;
-

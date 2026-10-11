@@ -1,7 +1,27 @@
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { getToken, clearToken } from '../api';
 
 function NavBar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(!!getToken());
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setIsLoggedIn(!!getToken());
+    };
+
+    window.addEventListener('auth-changed', handleAuthChange);
+    return () => {
+      window.removeEventListener('auth-changed', handleAuthChange);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    clearToken();
+    navigate('/login');
+  };
 
   const navItems = [
     { name: 'Home', path: '/' },
@@ -29,6 +49,26 @@ function NavBar() {
             </li>
           );
         })}
+        {isLoggedIn ? (
+          <li className="nav-item">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="nav-link nav-btn"
+            >
+              Logout
+            </button>
+          </li>
+        ) : (
+          <li className="nav-item">
+            <Link
+              to="/login"
+              className={`nav-link ${location.pathname === '/login' ? 'active' : ''}`}
+            >
+              Login
+            </Link>
+          </li>
+        )}
       </ul>
     </nav>
   );

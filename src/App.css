@@ -72,6 +72,15 @@
   font-weight: 600;
 }
 
+.nav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
 /* Main Content and Section Styles */
 .main-content {
   flex: 1;
